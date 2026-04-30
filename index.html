@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>أمتنان</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Cairo', sans-serif;
+  background: #060f08;
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+}
+
+/* ============================================================
+   LOADER
+============================================================ */
+#loader {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #060f08;
+  transition: opacity 1s ease, visibility 1s ease;
+}
+#loader.out { opacity: 0; visibility: hidden; pointer-events: none; }
+
+#bee-canvas {
+  width: 320px;
+  height: 320px;
+  display: block;
+}
+
+.loader-brand {
+  margin-top: 6px;
+  text-align: center;
+  animation: fadeUp .8s ease .4s both;
+}
+.loader-brand .ar {
+  font-size: 44px;
+  font-weight: 900;
+  color: #ffd166;
+  letter-spacing: 3px;
+  text-shadow: 0 0 40px rgba(255,209,102,.5);
+  display: block;
+  line-height: 1;
+}
+.loader-brand .en {
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 5px;
+  color: rgba(255,255,255,.3);
+  display: block;
+  margin-top: 6px;
+}
+.loader-bar-wrap {
+  width: 160px;
+  height: 2px;
+  background: rgba(255,255,255,.07);
+  border-radius: 2px;
+  margin: 20px auto 0;
+  overflow: hidden;
+}
+.loader-bar-fill {
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, #1a6b3a, #ffd166);
+  border-radius: 2px;
+  animation: barFill 2.9s cubic-bezier(.4,0,.2,1) forwards;
+}
+@keyframes barFill { to { width: 100%; } }
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(14px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+/* ============================================================
+   MAIN APP
+============================================================ */
+#app {
+  position: fixed;
+  inset: 0;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .9s ease, visibility .9s ease;
+  background: #f4f0e8;
+  overflow-y: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#app.show { opacity: 1; visibility: visible; }
+
+.page {
+  width: 100%;
+  max-width: 900px;
+  padding: 48px 24px 64px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 36px;
+}
+
+/* Logo */
+.top-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  animation: fadeUp .6s ease both;
+}
+.logo-circle {
+  width: 82px; height: 82px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 4px 28px rgba(26,107,58,.15);
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+}
+.top-logo-name {
+  font-size: 20px;
+  font-weight: 900;
+  color: #1a6b3a;
+  letter-spacing: 1px;
+}
+
+/* Divider label */
+.divider-label {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  max-width: 600px;
+  animation: fadeUp .5s ease .1s both;
+}
+.divider-label::before,
+.divider-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(0,0,0,.12);
+}
+.divider-label span {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  color: #aaa;
+  white-space: nowrap;
+}
+
+/* Cards */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+  gap: 20px;
+  width: 100%;
+}
+
+.card {
+  border-radius: 22px;
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: transform .35s cubic-bezier(.175,.885,.32,1.275),
+              box-shadow .35s ease;
+  animation: cardUp .65s ease both;
+}
+.card:nth-child(1) { animation-delay: .12s; }
+.card:nth-child(2) { animation-delay: .24s; }
+
+@keyframes cardUp {
+  from { opacity:0; transform:translateY(30px) scale(.97); }
+  to   { opacity:1; transform:none; }
+}
+.card:hover { transform: translateY(-7px); }
+
+.card-returns {
+  background: linear-gradient(148deg, #0c3d1e 0%, #1d7540 100%);
+  box-shadow: 0 14px 44px rgba(12,61,30,.32);
+}
+.card-workers {
+  background: linear-gradient(148deg, #271000 0%, #7a380a 100%);
+  box-shadow: 0 14px 44px rgba(39,16,0,.32);
+}
+.card:hover.card-returns { box-shadow: 0 24px 56px rgba(12,61,30,.48); }
+.card:hover.card-workers { box-shadow: 0 24px 56px rgba(39,16,0,.48); }
+
+/* subtle hex overlay */
+.card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='62'%3E%3Cpath d='M18 41L0 30.5V10L18 0l18 10v20.5L18 41zm0-3L3 30V12L18 2l15 10v18L18 38z' fill='white' fill-opacity='.035'/%3E%3C/svg%3E");
+  background-size: 36px 62px;
+  pointer-events: none;
+}
+
+/* Shine sweep on hover */
+.card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -80%;
+  width: 60%;
+  height: 200%;
+  background: linear-gradient(100deg, transparent 0%, rgba(255,255,255,.06) 50%, transparent 100%);
+  transform: skewX(-20deg);
+  transition: left .5s ease;
+  pointer-events: none;
+  z-index: 1;
+}
+.card:hover::before { left: 120%; }
+
+.card-body {
+  padding: 34px 30px 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: relative;
+  z-index: 2;
+}
+
+.card-icon {
+  width: 52px; height: 52px;
+  border-radius: 15px;
+  background: rgba(255,255,255,.11);
+  border: 1px solid rgba(255,255,255,.14);
+  display: flex; align-items: center; justify-content: center;
+  transition: transform .3s ease;
+}
+.card:hover .card-icon { transform: scale(1.1) rotate(5deg); }
+.card-icon svg { width: 26px; height: 26px; fill: rgba(255,255,255,.9); }
+
+.card-title {
+  font-size: 30px;
+  font-weight: 900;
+  color: white;
+  line-height: 1.15;
+}
+
+.card-desc {
+  font-size: 14px;
+  color: rgba(255,255,255,.55);
+  line-height: 1.8;
+}
+
+.card-btn {
+  margin-top: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  align-self: flex-start;
+  background: rgba(255,255,255,.1);
+  border: 1px solid rgba(255,255,255,.18);
+  border-radius: 50px;
+  padding: 11px 22px;
+  color: white;
+  font-family: 'Cairo', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .2s, border-color .2s, gap .2s;
+}
+.card:hover .card-btn {
+  background: rgba(255,255,255,.18);
+  border-color: rgba(255,255,255,.35);
+  gap: 12px;
+}
+.card-btn svg { width: 16px; height: 16px; fill: white; }
+
+.foot-note {
+  font-size: 12px;
+  color: #bbb;
+  animation: fadeUp .5s ease .35s both;
+}
+
+@media (max-width: 540px) {
+  .cards { grid-template-columns: 1fr; }
+  .card-body { padding: 28px 22px 24px; }
+  .card-title { font-size: 26px; }
+  .page { padding: 36px 16px 50px; gap: 24px; }
+}
+</style>
+</head>
+<body>
+
+<!-- LOADER -->
+<div id="loader">
+  <canvas id="bee-canvas"></canvas>
+  <div class="loader-brand">
+    <span class="ar">أمتنان</span>
+    <span class="en">IMTENAN</span>
+  </div>
+  <div class="loader-bar-wrap"><div class="loader-bar-fill"></div></div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="page">
+
+    <div class="top-logo">
+      <div class="logo-circle">
+        <svg width="62" height="62" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+          <text x="100" y="80" text-anchor="middle" font-family="Arial Black,Arial" font-weight="900" font-size="25" fill="#1a6b3a">IMTENAN</text>
+          <text x="100" y="116" text-anchor="middle" font-family="Arial" font-weight="700" font-size="30" fill="#1a6b3a">إمتنان</text>
+          <path d="M76 136 Q100 126 124 136" stroke="#1a6b3a" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <span class="top-logo-name">أمتنان</span>
+    </div>
+
+    <div class="divider-label"><span>اختر البوابة</span></div>
+
+    <div class="cards">
+
+      <a href="https://samermagdy1.github.io/samir_imtenan/" target="_blank" class="card card-returns">
+        <div class="card-body">
+          <div class="card-icon">
+            <svg viewBox="0 0 24 24"><path d="M20 11H7.83l4.88-4.88c.39-.39.39-1.03 0-1.42-.39-.39-1.02-.39-1.41 0l-6.59 6.59c-.39.39-.39 1.02 0 1.41l6.59 6.59c.39.39 1.02.39 1.41 0 .39-.39.39-1.02 0-1.41L7.83 13H20c.55 0 1-.45 1-1s-.45-1-1-1z"/></svg>
+          </div>
+          <div class="card-title">إدارة<br>المرتجعات</div>
+          <div class="card-desc">تسجيل ومتابعة طلبات الإرجاع ومعالجتها</div>
+          <button class="card-btn">
+            <span>دخول</span>
+            <svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg>
+          </button>
+        </div>
+      </a>
+
+      <a href="https://gratitude-crew-score.lovable.app/" target="_blank" class="card card-workers">
+        <div class="card-body">
+          <div class="card-icon">
+            <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+          </div>
+          <div class="card-title">تقييم<br>العمال</div>
+          <div class="card-desc">متابعة أداء الفريق وتقييمه بدقة واحترافية</div>
+          <button class="card-btn">
+            <span>دخول</span>
+            <svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg>
+          </button>
+        </div>
+      </a>
+
+    </div>
+
+    <span class="foot-note">© 2025 أمتنان لتربية النحل وإنتاج العسل</span>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function () {
+  const canvas = document.getElementById('bee-canvas');
+  const W = 320, H = 320;
+  canvas.width = W; canvas.height = H;
+
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(W, H);
+  renderer.shadowMap.enabled = false;
+  renderer.outputEncoding = THREE.sRGBEncoding;
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(42, W / H, 0.1, 100);
+  camera.position.set(0, 0.3, 6.5);
+  camera.lookAt(0, 0, 0);
+
+  // Lights
+  scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+  const sun = new THREE.DirectionalLight(0xffd580, 3.0);
+  sun.position.set(4, 6, 5);
+  scene.add(sun);
+  const fill = new THREE.DirectionalLight(0x88ffb0, 0.9);
+  fill.position.set(-5, 0, 3);
+  scene.add(fill);
+  const rim = new THREE.DirectionalLight(0xffffff, 0.5);
+  rim.position.set(0, -4, -5);
+  scene.add(rim);
+  const glowLight = new THREE.PointLight(0xffa500, 2.2, 4);
+  glowLight.position.set(0, 0, 0.6);
+  scene.add(glowLight);
+
+  // Materials
+  const M = (col, rough, metal, extra) => Object.assign(
+    new THREE.MeshStandardMaterial({ color: col, roughness: rough, metalness: metal }),
+    extra || {}
+  );
+  const mYellow  = M(0xf5a623, 0.28, 0.08);
+  const mBlack   = M(0x111111, 0.5, 0.05);
+  const mDarkHead = M(0x1a1a1a, 0.45, 0.1);
+  const mWing     = M(0xb8d8f0, 0.08, 0.0, { transparent: true, opacity: 0.52, side: THREE.DoubleSide });
+  const mStinger  = M(0xb36e00, 0.4, 0.2);
+  const mEye      = M(0x080808, 0.15, 0.4);
+  const mShine    = M(0xffffff, 0.0, 0.0, { transparent: true, opacity: 0.75 });
+  const mAntenna  = M(0x2a2a2a, 0.6, 0.0);
+  const mBall     = new THREE.MeshStandardMaterial({ color: 0xf5a623, roughness: 0.25, emissive: 0xffa000, emissiveIntensity: 0.4 });
+
+  // ─── BEE GROUP ───
+  const bee = new THREE.Group();
+  scene.add(bee);
+
+  // Abdomen
+  const abGroup = new THREE.Group();
+  bee.add(abGroup);
+
+  const abGeom = new THREE.SphereGeometry(0.88, 32, 24);
+  const ab = new THREE.Mesh(abGeom, mYellow);
+  ab.scale.set(1, 1.35, 1);
+  ab.position.y = -0.55;
+  abGroup.add(ab);
+
+  // Stripes on abdomen
+  [0, -0.32, -0.64].forEach(dy => {
+    const sg = new THREE.TorusGeometry(0.9, 0.09, 8, 52);
+    const sm = new THREE.Mesh(sg, mBlack);
+    sm.position.y = -0.55 + dy;
+    sm.rotation.x = Math.PI / 2;
+    sm.scale.y = 0.35;
+    abGroup.add(sm);
+  });
+
+  // Stinger
+  const sting = new THREE.Mesh(new THREE.ConeGeometry(0.11, 0.5, 10), mStinger);
+  sting.rotation.z = Math.PI;
+  sting.position.y = -1.82;
+  abGroup.add(sting);
+
+  // Thorax
+  const thorax = new THREE.Mesh(new THREE.SphereGeometry(0.5, 24, 20), mBlack);
+  thorax.scale.set(1, 1.08, 1);
+  thorax.position.y = 0.6;
+  bee.add(thorax);
+
+  // Head
+  const headG = new THREE.Group();
+  headG.position.y = 1.38;
+  bee.add(headG);
+
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.45, 28, 22), mDarkHead);
+  headG.add(head);
+
+  // Eyes
+  [-0.21, 0.21].forEach(x => {
+    const eye = new THREE.Mesh(new THREE.SphereGeometry(0.135, 16, 16), mEye);
+    eye.position.set(x, 0.06, 0.37);
+    headG.add(eye);
+    const shine = new THREE.Mesh(new THREE.SphereGeometry(0.048, 10, 10), mShine);
+    shine.position.set(x - 0.045, 0.11, 0.49);
+    headG.add(shine);
+  });
+
+  // Antennae
+  [-0.17, 0.17].forEach(x => {
+    const pts = [];
+    for (let i = 0; i <= 12; i++) {
+      const s = i / 12;
+      pts.push(new THREE.Vector3(
+        x + x * s * 1.4,
+        0.28 + s * 0.9,
+        0.28 - s * 0.35
+      ));
+    }
+    const tube = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 12, 0.022, 5);
+    headG.add(new THREE.Mesh(tube, mAntenna));
+    const ball = new THREE.Mesh(new THREE.SphereGeometry(0.065, 10, 10), mBall);
+    ball.position.copy(pts[pts.length - 1]);
+    headG.add(ball);
+  });
+
+  // ─── WINGS ───
+  const wingLG = new THREE.Group();
+  const wingRG = new THREE.Group();
+
+  function buildWing(group, sign) {
+    // Upper wing
+    const s1 = new THREE.Shape();
+    s1.moveTo(0, 0);
+    s1.bezierCurveTo(sign*0.4, 0.9, sign*1.4, 0.95, sign*1.6, 0.3);
+    s1.bezierCurveTo(sign*1.65, -0.1, sign*1.2, -0.55, sign*0.5, -0.38);
+    s1.bezierCurveTo(sign*0.25, -0.28, sign*0.1, -0.1, 0, 0);
+    group.add(new THREE.Mesh(new THREE.ShapeGeometry(s1, 24), mWing));
+
+    // Lower wing
+    const s2 = new THREE.Shape();
+    s2.moveTo(0, 0);
+    s2.bezierCurveTo(sign*0.22, 0.5, sign*0.95, 0.52, sign*1.15, 0.08);
+    s2.bezierCurveTo(sign*1.18, -0.22, sign*0.75, -0.42, sign*0.28, -0.26);
+    s2.bezierCurveTo(sign*0.1, -0.16, 0, -0.06, 0, 0);
+    const wm2 = new THREE.Mesh(new THREE.ShapeGeometry(s2, 20), mWing);
+    wm2.position.y = -0.38;
+    group.add(wm2);
+  }
+
+  buildWing(wingLG, -1);
+  buildWing(wingRG,  1);
+
+  wingLG.position.set( 0.5, 0.72, 0);
+  wingRG.position.set(-0.5, 0.72, 0);
+  wingLG.rotation.x = -0.18;
+  wingRG.rotation.x = -0.18;
+  bee.add(wingLG);
+  bee.add(wingRG);
+
+  // Legs
+  [[-0.08, 0.1], [-0.32, 0], [-0.58, -0.1]].forEach(([y, zOff]) => {
+    [-1, 1].forEach(side => {
+      const pts = [
+        new THREE.Vector3(side * 0.48, y, 0.18 + zOff),
+        new THREE.Vector3(side * 0.88, y - 0.22, 0.08 + zOff),
+        new THREE.Vector3(side * 1.08, y - 0.5, -0.02 + zOff),
+      ];
+      const tube = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 6, 0.022, 5);
+      bee.add(new THREE.Mesh(tube, mBlack));
+    });
+  });
+
+  // ─── POLLEN PARTICLES ───
+  const pCount = 80;
+  const pGeo = new THREE.BufferGeometry();
+  const pPos = new Float32Array(pCount * 3);
+  const pSpd = new Float32Array(pCount);
+  const pAng = new Float32Array(pCount);
+  for (let i = 0; i < pCount; i++) {
+    const r = 1.6 + Math.random() * 1.8;
+    const a = Math.random() * Math.PI * 2;
+    const h = (Math.random() - 0.5) * 4;
+    pPos[i*3]   = r * Math.cos(a);
+    pPos[i*3+1] = h;
+    pPos[i*3+2] = r * Math.sin(a);
+    pSpd[i] = 0.004 + Math.random() * 0.012;
+    pAng[i] = a;
+  }
+  pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
+  const pMat = new THREE.PointsMaterial({ color: 0xffd166, size: 0.05, transparent: true, opacity: 0.65 });
+  const particles = new THREE.Points(pGeo, pMat);
+  scene.add(particles);
+
+  // ─── ORBIT RINGS ───
+  const makeRing = (r, opacity, rotX) => {
+    const m = new THREE.Mesh(
+      new THREE.TorusGeometry(r, 0.012, 6, 90),
+      new THREE.MeshBasicMaterial({ color: 0xffd166, transparent: true, opacity })
+    );
+    m.rotation.x = rotX;
+    scene.add(m);
+    return m;
+  };
+  const ring1 = makeRing(2.3, 0.22, Math.PI / 2);
+  const ring2 = makeRing(2.9, 0.1,  Math.PI / 3.5);
+  const ring3 = makeRing(3.4, 0.06, Math.PI / 5);
+
+  // ─── ANIMATE ───
+  let t = 0;
+  // State machine for bee behaviour
+  let phase = 0; // 0=intro spin, 1=float, 2=dive, 3=recover
+  let phaseT = 0;
+
+  function animate() {
+    requestAnimationFrame(animate);
+    t += 0.018;
+    phaseT += 0.018;
+
+    // Wing flap — very fast and expressive
+    const flapFreq = 16;
+    const flapAmp  = 0.62;
+    const flap = Math.sin(t * flapFreq) * flapAmp;
+    const flapZ = Math.sin(t * flapFreq + 0.4) * 0.12;
+    wingLG.rotation.y =  0.55 + flap;
+    wingRG.rotation.y = -0.55 - flap;
+    wingLG.rotation.z =  0.08 + flapZ;
+    wingRG.rotation.z = -0.08 - flapZ;
+
+    // Phase logic for dramatic movements
+    if (phase === 0) {
+      // Intro: full 3D spin + rise
+      bee.rotation.y = phaseT * 2.8;
+      bee.position.y = -2 + phaseT * 1.5;
+      bee.position.z = Math.sin(phaseT) * 0.5;
+      if (phaseT > 2.2) { phase = 1; phaseT = 0; bee.rotation.y = 0; }
+
+    } else if (phase === 1) {
+      // Gentle float with sway
+      bee.position.y = Math.sin(phaseT * 0.9) * 0.22;
+      bee.rotation.z = Math.sin(phaseT * 0.7) * 0.09;
+      bee.rotation.x = Math.sin(phaseT * 0.5) * 0.06;
+      bee.rotation.y += (0 - bee.rotation.y) * 0.04;
+      if (phaseT > 5) { phase = 2; phaseT = 0; }
+
+    } else if (phase === 2) {
+      // Dive + barrel roll
+      bee.position.y = Math.sin(phaseT * 0.9) * 0.22 - phaseT * 0.4;
+      bee.rotation.y = phaseT * 4;
+      bee.rotation.x = phaseT * 0.5;
+      if (phaseT > 1.6) { phase = 3; phaseT = 0; }
+
+    } else if (phase === 3) {
+      // Recover
+      bee.position.y += (0 - bee.position.y) * 0.06;
+      bee.rotation.x += (0 - bee.rotation.x) * 0.06;
+      bee.rotation.y += (0 - bee.rotation.y) * 0.06;
+      bee.rotation.z += (0 - bee.rotation.z) * 0.06;
+      if (phaseT > 2.5) { phase = 1; phaseT = 0; }
+    }
+
+    // Glow pulse
+    glowLight.intensity = 1.8 + Math.sin(t * 3.5) * 0.8;
+
+    // Particles orbit
+    const pp = pGeo.attributes.position.array;
+    for (let i = 0; i < pCount; i++) {
+      pAng[i] += pSpd[i];
+      const r = Math.sqrt(pp[i*3]*pp[i*3] + pp[i*3+2]*pp[i*3+2]);
+      pp[i*3]   = r * Math.cos(pAng[i]);
+      pp[i*3+2] = r * Math.sin(pAng[i]);
+      pp[i*3+1] += pSpd[i] * 0.25;
+      if (pp[i*3+1] > 2.2) pp[i*3+1] = -2.2;
+    }
+    pGeo.attributes.position.needsUpdate = true;
+
+    // Rings drift
+    ring1.rotation.z += 0.006;
+    ring2.rotation.y += 0.004;
+    ring3.rotation.x += 0.003;
+
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  // Transition after 3.2s
+  setTimeout(() => {
+    document.getElementById('loader').classList.add('out');
+    const app = document.getElementById('app');
+    app.classList.add('show');
+    document.body.style.overflow = 'auto';
+  }, 3300);
+})();
+</script>
+</body>
+</html>
